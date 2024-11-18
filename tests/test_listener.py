@@ -6,7 +6,7 @@
 import logging
 import unittest
 import unittest.mock
-from typing import Tuple, Union
+from typing import Union
 from unittest.mock import MagicMock, patch
 
 import zeroconf as r
@@ -61,8 +61,9 @@ def test_guard_against_oversized_packets():
 
     try:
         # We are patching to generate an oversized packet
-        with patch.object(outgoing, "_MAX_MSG_ABSOLUTE", 100000), patch.object(
-            outgoing, "_MAX_MSG_TYPICAL", 100000
+        with (
+            patch.object(outgoing, "_MAX_MSG_ABSOLUTE", 100000),
+            patch.object(outgoing, "_MAX_MSG_TYPICAL", 100000),
         ):
             over_sized_packet = generated.packets()[0]
             assert len(over_sized_packet) > const._MAX_MSG_ABSOLUTE
@@ -149,7 +150,7 @@ def test_guard_against_duplicate_packets():
             addr: str,
             port: int,
             transport: _engine._WrappedTransport,
-            v6_flow_scope: Union[Tuple[()], Tuple[int, int]] = (),
+            v6_flow_scope: Union[tuple[()], tuple[int, int]] = (),
         ) -> None:
             """Handle a query or defer it for later processing."""
             super().handle_query_or_defer(msg, addr, port, transport, v6_flow_scope)

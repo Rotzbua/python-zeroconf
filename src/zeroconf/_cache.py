@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 USA
 """
 
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Union, cast
+from collections.abc import Iterable
+from typing import Optional, Union, cast
 
 from ._dns import (
     DNSAddress,
@@ -37,7 +38,7 @@ from .const import _ONE_SECOND, _TYPE_PTR
 
 _UNIQUE_RECORD_TYPES = (DNSAddress, DNSHinfo, DNSPointer, DNSText, DNSService)
 _UniqueRecordsType = Union[DNSAddress, DNSHinfo, DNSPointer, DNSText, DNSService]
-_DNSRecordCacheType = Dict[str, Dict[DNSRecord, DNSRecord]]
+_DNSRecordCacheType = dict[str, dict[DNSRecord, DNSRecord]]
 _DNSRecord = DNSRecord
 _str = str
 _float = float
@@ -117,7 +118,7 @@ class DNSCache:
         for entry in entries:
             self._async_remove(entry)
 
-    def async_expire(self, now: _float) -> List[DNSRecord]:
+    def async_expire(self, now: _float) -> list[DNSRecord]:
         """Purge expired entries from the cache.
 
         This function must be run in from event loop.
@@ -138,7 +139,7 @@ class DNSCache:
             return None
         return store.get(entry)
 
-    def async_all_by_details(self, name: _str, type_: _int, class_: _int) -> List[DNSRecord]:
+    def async_all_by_details(self, name: _str, type_: _int, class_: _int) -> list[DNSRecord]:
         """Gets all matching entries by details.
 
         This function is not thread-safe and must be called from
@@ -146,7 +147,7 @@ class DNSCache:
         """
         key = name.lower()
         records = self.cache.get(key)
-        matches: List[DNSRecord] = []
+        matches: list[DNSRecord] = []
         if records is None:
             return matches
         for record in records:
@@ -154,7 +155,7 @@ class DNSCache:
                 matches.append(record)
         return matches
 
-    def async_entries_with_name(self, name: str) -> Dict[DNSRecord, DNSRecord]:
+    def async_entries_with_name(self, name: str) -> dict[DNSRecord, DNSRecord]:
         """Returns a dict of entries whose key matches the name.
 
         This function is not threadsafe and must be called from
@@ -162,7 +163,7 @@ class DNSCache:
         """
         return self.cache.get(name.lower()) or {}
 
-    def async_entries_with_server(self, name: str) -> Dict[DNSRecord, DNSRecord]:
+    def async_entries_with_server(self, name: str) -> dict[DNSRecord, DNSRecord]:
         """Returns a dict of entries whose key matches the server.
 
         This function is not threadsafe and must be called from
@@ -205,7 +206,7 @@ class DNSCache:
                 return cached_entry
         return None
 
-    def get_all_by_details(self, name: str, type_: _int, class_: _int) -> List[DNSRecord]:
+    def get_all_by_details(self, name: str, type_: _int, class_: _int) -> list[DNSRecord]:
         """Gets all matching entries by details."""
         key = name.lower()
         records = self.cache.get(key)
@@ -213,11 +214,11 @@ class DNSCache:
             return []
         return [entry for entry in list(records) if type_ == entry.type and class_ == entry.class_]
 
-    def entries_with_server(self, server: str) -> List[DNSRecord]:
+    def entries_with_server(self, server: str) -> list[DNSRecord]:
         """Returns a list of entries whose server matches the name."""
         return list(self.service_cache.get(server.lower(), []))
 
-    def entries_with_name(self, name: str) -> List[DNSRecord]:
+    def entries_with_name(self, name: str) -> list[DNSRecord]:
         """Returns a list of entries whose key matches the name."""
         return list(self.cache.get(name.lower(), []))
 
@@ -232,13 +233,13 @@ class DNSCache:
                 return record
         return None
 
-    def names(self) -> List[str]:
+    def names(self) -> list[str]:
         """Return a copy of the list of current cache names."""
         return list(self.cache)
 
     def async_mark_unique_records_older_than_1s_to_expire(
         self,
-        unique_types: Set[Tuple[_str, _int, _int]],
+        unique_types: set[tuple[_str, _int, _int]],
         answers: Iterable[DNSRecord],
         now: _float,
     ) -> None:

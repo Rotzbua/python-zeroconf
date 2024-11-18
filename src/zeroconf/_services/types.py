@@ -21,7 +21,7 @@ USA
 """
 
 import time
-from typing import Optional, Set, Tuple, Union
+from typing import Optional, Union
 
 from .._core import Zeroconf
 from .._services import ServiceListener
@@ -37,7 +37,7 @@ class ZeroconfServiceTypes(ServiceListener):
 
     def __init__(self) -> None:
         """Keep track of found services in a set."""
-        self.found_services: Set[str] = set()
+        self.found_services: set[str] = set()
 
     def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         """Service added."""
@@ -56,7 +56,7 @@ class ZeroconfServiceTypes(ServiceListener):
         timeout: Union[int, float] = 5,
         interfaces: InterfacesType = InterfaceChoice.All,
         ip_version: Optional[IPVersion] = None,
-    ) -> Tuple[str, ...]:
+    ) -> tuple[str, ...]:
         """
         Return all of the advertised services on any local networks.
 

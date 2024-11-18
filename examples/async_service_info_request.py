@@ -9,7 +9,7 @@ list of HomeKit devices on the network.
 import argparse
 import asyncio
 import logging
-from typing import Any, List, Optional, cast
+from typing import Any, Optional, cast
 
 from zeroconf import IPVersion, ServiceBrowser, ServiceStateChange, Zeroconf
 from zeroconf.asyncio import AsyncServiceInfo, AsyncZeroconf
@@ -21,7 +21,7 @@ async def async_watch_services(aiozc: AsyncZeroconf) -> None:
     zeroconf = aiozc.zeroconf
     while True:
         await asyncio.sleep(5)
-        infos: List[AsyncServiceInfo] = []
+        infos: list[AsyncServiceInfo] = []
         for name in zeroconf.cache.names():
             if not name.endswith(HAP_TYPE):
                 continue

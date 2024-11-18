@@ -10,9 +10,10 @@ import socket
 import sys
 import threading
 import unittest
+from collections.abc import Iterable
 from ipaddress import ip_address
 from threading import Event
-from typing import Iterable, List, Optional
+from typing import Optional
 from unittest.mock import patch
 
 import pytest
@@ -889,7 +890,7 @@ def test_filter_address_by_type_from_service_info():
     ipv6 = socket.inet_pton(socket.AF_INET6, "2001:db8::1")
     info = ServiceInfo(type_, registration_name, 80, 0, 0, desc, "ash-2.local.", addresses=[ipv4, ipv6])
 
-    def dns_addresses_to_addresses(dns_address: List[DNSAddress]) -> List[bytes]:
+    def dns_addresses_to_addresses(dns_address: list[DNSAddress]) -> list[bytes]:
         return [address.address for address in dns_address]
 
     assert dns_addresses_to_addresses(info.dns_addresses()) == [ipv4, ipv6]

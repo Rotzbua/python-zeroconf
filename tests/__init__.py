@@ -23,8 +23,8 @@ USA
 import asyncio
 import socket
 import time
-from functools import lru_cache
-from typing import List, Optional, Set
+from functools import cache
+from typing import Optional
 from unittest import mock
 
 import ifaddr
@@ -36,11 +36,11 @@ _MONOTONIC_RESOLUTION = time.get_clock_info("monotonic").resolution
 
 
 class QuestionHistoryWithoutSuppression(QuestionHistory):
-    def suppresses(self, question: DNSQuestion, now: float, known_answers: Set[DNSRecord]) -> bool:
+    def suppresses(self, question: DNSQuestion, now: float, known_answers: set[DNSRecord]) -> bool:
         return False
 
 
-def _inject_responses(zc: Zeroconf, msgs: List[DNSIncoming]) -> None:
+def _inject_responses(zc: Zeroconf, msgs: list[DNSIncoming]) -> None:
     """Inject a DNSIncoming response."""
     assert zc.loop is not None
 
@@ -62,7 +62,7 @@ def _wait_for_start(zc: Zeroconf) -> None:
     asyncio.run_coroutine_threadsafe(zc.async_wait_for_start(), zc.loop).result()
 
 
-@lru_cache(maxsize=None)
+@cache
 def has_working_ipv6():
     """Return True if if the system can bind an IPv6 address."""
     if not socket.has_ipv6:
