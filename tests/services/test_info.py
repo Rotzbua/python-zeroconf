@@ -10,9 +10,10 @@ import socket
 import sys
 import threading
 import unittest
+from collections.abc import Iterable
 from ipaddress import ip_address
 from threading import Event
-from typing import Iterable, List, Optional
+from typing import Optional
 from unittest.mock import patch
 
 import pytest
@@ -704,7 +705,6 @@ def test_multiple_addresses():
     assert info.addresses == [address, address]
     assert info.parsed_addresses() == [address_parsed, address_parsed]
     assert info.parsed_scoped_addresses() == [address_parsed, address_parsed]
-    ipaddress_supports_scope_id = sys.version_info >= (3, 9, 0)
 
     if has_working_ipv6() and not os.environ.get("SKIP_IPV6"):
         address_v6_parsed = "2001:db8::1"
@@ -751,9 +751,7 @@ def test_multiple_addresses():
             assert info.ip_addresses_by_version(r.IPVersion.All) == [
                 ip_address(address),
                 ip_address(address_v6),
-                ip_address(address_v6_ll_scoped_parsed)
-                if ipaddress_supports_scope_id
-                else ip_address(address_v6_ll),
+                ip_address(address_v6_ll_scoped_parsed),
             ]
             assert info.addresses_by_version(r.IPVersion.V4Only) == [address]
             assert info.ip_addresses_by_version(r.IPVersion.V4Only) == [ip_address(address)]
@@ -763,9 +761,7 @@ def test_multiple_addresses():
             ]
             assert info.ip_addresses_by_version(r.IPVersion.V6Only) == [
                 ip_address(address_v6),
-                ip_address(address_v6_ll_scoped_parsed)
-                if ipaddress_supports_scope_id
-                else ip_address(address_v6_ll),
+                ip_address(address_v6_ll_scoped_parsed),
             ]
             assert info.parsed_addresses() == [
                 address_parsed,
@@ -780,16 +776,15 @@ def test_multiple_addresses():
             assert info.parsed_scoped_addresses() == [
                 address_parsed,
                 address_v6_parsed,
-                address_v6_ll_scoped_parsed if ipaddress_supports_scope_id else address_v6_ll_parsed,
+                address_v6_ll_scoped_parsed,
             ]
             assert info.parsed_scoped_addresses(r.IPVersion.V4Only) == [address_parsed]
             assert info.parsed_scoped_addresses(r.IPVersion.V6Only) == [
                 address_v6_parsed,
-                address_v6_ll_scoped_parsed if ipaddress_supports_scope_id else address_v6_ll_parsed,
+                address_v6_ll_scoped_parsed,
             ]
 
 
-@unittest.skipIf(sys.version_info < (3, 9, 0), "Requires newer python")
 def test_scoped_addresses_from_cache():
     type_ = "_http._tcp.local."
     registration_name = f"scoped.{type_}"
@@ -889,7 +884,7 @@ def test_filter_address_by_type_from_service_info():
     ipv6 = socket.inet_pton(socket.AF_INET6, "2001:db8::1")
     info = ServiceInfo(type_, registration_name, 80, 0, 0, desc, "ash-2.local.", addresses=[ipv4, ipv6])
 
-    def dns_addresses_to_addresses(dns_address: List[DNSAddress]) -> List[bytes]:
+    def dns_addresses_to_addresses(dns_address: list[DNSAddress]) -> list[bytes]:
         return [address.address for address in dns_address]
 
     assert dns_addresses_to_addresses(info.dns_addresses()) == [ipv4, ipv6]

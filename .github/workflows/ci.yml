@@ -36,34 +36,33 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
-          - "pypy-3.8"
           - "pypy-3.9"
+          - "pypy-3.10"
         os:
           - ubuntu-latest
           - macos-latest
           - windows-latest
         extension:
           - "skip_cython"
-          - "use_cython"
+          - "require_cython"
         exclude:
           - os: macos-latest
-            extension: use_cython
+            extension: require_cython
           - os: windows-latest
-            extension: use_cython
-          - os: windows-latest
-            python-version: "pypy-3.8"
+            extension: require_cython
           - os: windows-latest
             python-version: "pypy-3.9"
-          - os: macos-latest
-            python-version: "pypy-3.8"
+          - os: windows-latest
+            python-version: "pypy-3.10"
           - os: macos-latest
             python-version: "pypy-3.9"
+          - os: macos-latest
+            python-version: "pypy-3.10"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -73,7 +72,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "poetry"
           allow-prereleases: true
       - name: Install Dependencies no cython
         if: ${{ matrix.extension == 'skip_cython' }}
@@ -81,7 +79,7 @@ jobs:
           SKIP_CYTHON: 1
         run: poetry install --only=main,dev
       - name: Install Dependencies with cython
-        if: ${{ matrix.extension != 'skip_cython' }}
+        if: ${{ matrix.extension == 'require_cython' }}
         env:
           REQUIRE_CYTHON: 1
         run: poetry install --only=main,dev

@@ -21,7 +21,6 @@ USA
 """
 
 from functools import lru_cache
-from typing import Set
 
 from .._exceptions import BadTypeInNameException
 from ..const import (
@@ -162,7 +161,7 @@ def service_type_name(type_: str, *, strict: bool = True) -> str:  # pylint: dis
     return service_name + trailer
 
 
-def possible_types(name: str) -> Set[str]:
+def possible_types(name: str) -> set[str]:
     """Build a set of all possible types from a fully qualified name."""
     labels = name.split(".")
     label_count = len(labels)
