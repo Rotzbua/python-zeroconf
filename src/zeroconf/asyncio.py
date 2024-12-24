@@ -22,8 +22,9 @@ USA
 
 import asyncio
 import contextlib
+from collections.abc import Awaitable
 from types import TracebackType  # used in type hints
-from typing import Awaitable, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Callable, Optional, Union
 
 from ._core import Zeroconf
 from ._dns import DNSQuestionType
@@ -65,7 +66,7 @@ class AsyncServiceBrowser(_ServiceBrowserBase):
         self,
         zeroconf: "Zeroconf",
         type_: Union[str, list],
-        handlers: Optional[Union[ServiceListener, List[Callable[..., None]]]] = None,
+        handlers: Optional[Union[ServiceListener, list[Callable[..., None]]]] = None,
         listener: Optional[ServiceListener] = None,
         addr: Optional[str] = None,
         port: int = _MDNS_PORT,
@@ -84,7 +85,7 @@ class AsyncServiceBrowser(_ServiceBrowserBase):
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:
@@ -102,7 +103,7 @@ class AsyncZeroconfServiceTypes(ZeroconfServiceTypes):
         timeout: Union[int, float] = 5,
         interfaces: InterfacesType = InterfaceChoice.All,
         ip_version: Optional[IPVersion] = None,
-    ) -> Tuple[str, ...]:
+    ) -> tuple[str, ...]:
         """
         Return all of the advertised services on any local networks.
 
@@ -170,7 +171,7 @@ class AsyncZeroconf:
             ip_version=ip_version,
             apple_p2p=apple_p2p,
         )
-        self.async_browsers: Dict[ServiceListener, AsyncServiceBrowser] = {}
+        self.async_browsers: dict[ServiceListener, AsyncServiceBrowser] = {}
 
     async def async_register_service(
         self,
@@ -273,7 +274,7 @@ class AsyncZeroconf:
 
     async def __aexit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:
