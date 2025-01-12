@@ -189,7 +189,7 @@ class DNSCache:
             return None
         return store.get(entry)
 
-    def async_all_by_details(self, name: _str, type_: _int, class_: _int) -> List[DNSRecord]:
+    def async_all_by_details(self, name: str, type_: _int, class_: _int) -> List[DNSRecord]:
         """Gets all matching entries by details.
 
         This function is not thread-safe and must be called from
