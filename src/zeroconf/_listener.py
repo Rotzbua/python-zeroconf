@@ -38,7 +38,6 @@ if TYPE_CHECKING:
 _TC_DELAY_RANDOM_INTERVAL = (400, 500)
 
 
-_bytes = bytes
 _str = str
 _int = int
 _float = float
@@ -83,7 +82,7 @@ class AsyncListener:
         super().__init__()
 
     def datagram_received(
-        self, data: _bytes, addrs: Union[Tuple[str, int], Tuple[str, int, int, int]]
+        self, data: bytes, addrs: Union[Tuple[str, int], Tuple[str, int, int, int]]
     ) -> None:
         data_len = len(data)
         debug = DEBUG_ENABLED()
@@ -107,7 +106,7 @@ class AsyncListener:
         debug: bool,
         data_len: _int,
         now: _float,
-        data: _bytes,
+        data: bytes,
         addrs: Union[Tuple[str, int], Tuple[str, int, int, int]],
     ) -> None:
         if (
