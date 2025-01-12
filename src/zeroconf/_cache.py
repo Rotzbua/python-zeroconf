@@ -50,7 +50,7 @@ _int = int
 _MIN_SCHEDULED_RECORD_EXPIRATION = 100
 
 
-def _remove_key(cache: _DNSRecordCacheType, key: _str, record: _DNSRecord) -> None:
+def _remove_key(cache: _DNSRecordCacheType, key: str, record: _DNSRecord) -> None:
     """Remove a key from a DNSRecord cache
 
     This function must be run in from event loop.
@@ -189,7 +189,7 @@ class DNSCache:
             return None
         return store.get(entry)
 
-    def async_all_by_details(self, name: _str, type_: _int, class_: _int) -> List[DNSRecord]:
+    def async_all_by_details(self, name: str, type_: _int, class_: _int) -> List[DNSRecord]:
         """Gets all matching entries by details.
 
         This function is not thread-safe and must be called from
