@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 USA
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from ._dns import DNSRecord
 from ._record_update import RecordUpdate
@@ -49,7 +49,7 @@ class RecordUpdateListener:
         """
         raise RuntimeError("update_record is deprecated and will be removed in a future version.")
 
-    def async_update_records(self, zc: "Zeroconf", now: float_, records: list[RecordUpdate]) -> None:
+    def async_update_records(self, zc: "Zeroconf", now: float_, records: List[RecordUpdate]) -> None:
         """Update multiple records in one shot.
 
         All records that are received in a single packet are passed

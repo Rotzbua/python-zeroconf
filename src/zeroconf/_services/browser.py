@@ -27,14 +27,19 @@ import random
 import threading
 import time
 import warnings
-from collections.abc import Iterable
 from functools import partial
 from types import TracebackType  # used in type hints
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
+    Iterable,
+    List,
     Optional,
+    Set,
+    Tuple,
+    Type,
     Union,
     cast,
 )
@@ -93,7 +98,7 @@ int_ = int
 bool_ = bool
 str_ = str
 
-_QuestionWithKnownAnswers = dict[DNSQuestion, set[DNSPointer]]
+_QuestionWithKnownAnswers = Dict[DNSQuestion, Set[DNSPointer]]
 
 heappop = heapq.heappop
 heappush = heapq.heappush
@@ -192,7 +197,7 @@ class _DNSPointerOutgoingBucket:
         self.out = DNSOutgoing(_FLAGS_QR_QUERY, multicast)
         self.bytes = 0
 
-    def add(self, max_compressed_size: int_, question: DNSQuestion, answers: set[DNSPointer]) -> None:
+    def add(self, max_compressed_size: int_, question: DNSQuestion, answers: Set[DNSPointer]) -> None:
         """Add a new set of questions and known answers to the outgoing."""
         self.out.add_question(question)
         for answer in answers:
@@ -204,7 +209,7 @@ def group_ptr_queries_with_known_answers(
     now: float_,
     multicast: bool_,
     question_with_known_answers: _QuestionWithKnownAnswers,
-) -> list[DNSOutgoing]:
+) -> List[DNSOutgoing]:
     """Aggregate queries so that as many known answers as possible fit in the same packet
     without having known answers spill over into the next packet unless the
     question and known answers are always going to exceed the packet size.
@@ -220,19 +225,19 @@ def _group_ptr_queries_with_known_answers(
     now_millis: float_,
     multicast: bool_,
     question_with_known_answers: _QuestionWithKnownAnswers,
-) -> list[DNSOutgoing]:
+) -> List[DNSOutgoing]:
     """Inner wrapper for group_ptr_queries_with_known_answers."""
     # This is the maximum size the query + known answers can be with name compression.
     # The actual size of the query + known answers may be a bit smaller since other
     # parts may be shared when the final DNSOutgoing packets are constructed. The
     # goal of this algorithm is to quickly bucket the query + known answers without
     # the overhead of actually constructing the packets.
-    query_by_size: dict[DNSQuestion, int] = {
+    query_by_size: Dict[DNSQuestion, int] = {
         question: (question.max_size + sum(answer.max_size_compressed for answer in known_answers))
         for question, known_answers in question_with_known_answers.items()
     }
     max_bucket_size = _MAX_MSG_TYPICAL - _DNS_PACKET_HEADER_LEN
-    query_buckets: list[_DNSPointerOutgoingBucket] = []
+    query_buckets: List[_DNSPointerOutgoingBucket] = []
     for question in sorted(
         query_by_size,
         key=query_by_size.get,  # type: ignore
@@ -258,10 +263,10 @@ def _group_ptr_queries_with_known_answers(
 def generate_service_query(
     zc: "Zeroconf",
     now_millis: float_,
-    types_: set[str],
+    types_: Set[str],
     multicast: bool,
     question_type: Optional[DNSQuestionType],
-) -> list[DNSOutgoing]:
+) -> List[DNSOutgoing]:
     """Generate a service query for sending with zeroconf.send."""
     questions_with_known_answers: _QuestionWithKnownAnswers = {}
     qu_question = not multicast if question_type is None else question_type is QU_QUESTION
@@ -279,7 +284,7 @@ def generate_service_query(
             log.debug("Asking %s was suppressed by the question history", question)
             continue
         if TYPE_CHECKING:
-            pointer_known_answers = cast(set[DNSPointer], known_answers)
+            pointer_known_answers = cast(Set[DNSPointer], known_answers)
         else:
             pointer_known_answers = known_answers
         questions_with_known_answers[question] = pointer_known_answers
@@ -342,12 +347,12 @@ class QueryScheduler:
     def __init__(
         self,
         zc: "Zeroconf",
-        types: set[str],
+        types: Set[str],
         addr: Optional[str],
         port: int,
         multicast: bool,
         delay: int,
-        first_random_delay_interval: tuple[int, int],
+        first_random_delay_interval: Tuple[int, int],
         question_type: Optional[DNSQuestionType],
     ) -> None:
         self._zc = zc
@@ -359,7 +364,7 @@ class QueryScheduler:
         self._min_time_between_queries_millis = delay
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._startup_queries_sent = 0
-        self._next_scheduled_for_alias: dict[str, _ScheduledPTRQuery] = {}
+        self._next_scheduled_for_alias: Dict[str, _ScheduledPTRQuery] = {}
         self._query_heap: list[_ScheduledPTRQuery] = []
         self._next_run: Optional[asyncio.TimerHandle] = None
         self._clock_resolution_millis = time.get_clock_info("monotonic").resolution * 1000
@@ -495,10 +500,10 @@ class QueryScheduler:
         # with a minimum time between queries of _min_time_between_queries
         # which defaults to 10s
 
-        ready_types: set[str] = set()
+        ready_types: Set[str] = set()
         next_scheduled: Optional[_ScheduledPTRQuery] = None
         end_time_millis = now_millis + self._clock_resolution_millis
-        schedule_rescue: list[_ScheduledPTRQuery] = []
+        schedule_rescue: List[_ScheduledPTRQuery] = []
 
         while self._query_heap:
             query = self._query_heap[0]
@@ -533,7 +538,7 @@ class QueryScheduler:
         self._next_run = self._loop.call_at(millis_to_seconds(next_when_millis), self._process_ready_types)
 
     def async_send_ready_queries(
-        self, first_request: bool, now_millis: float_, ready_types: set[str]
+        self, first_request: bool, now_millis: float_, ready_types: Set[str]
     ) -> None:
         """Send any ready queries."""
         # If they did not specify and this is the first request, ask QU questions
@@ -566,7 +571,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
         self,
         zc: "Zeroconf",
         type_: Union[str, list],
-        handlers: Optional[Union[ServiceListener, list[Callable[..., None]]]] = None,
+        handlers: Optional[Union[ServiceListener, List[Callable[..., None]]]] = None,
         listener: Optional[ServiceListener] = None,
         addr: Optional[str] = None,
         port: int = _MDNS_PORT,
@@ -591,7 +596,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
         discovers changes in the services availability.
         """
         assert handlers or listener, "You need to specify at least one handler"
-        self.types: set[str] = set(type_ if isinstance(type_, list) else [type_])
+        self.types: Set[str] = set(type_ if isinstance(type_, list) else [type_])
         for check_type_ in self.types:
             # Will generate BadTypeInNameException on a bad name
             service_type_name(check_type_, strict=False)
@@ -599,7 +604,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
         self._cache = zc.cache
         assert zc.loop is not None
         self._loop = zc.loop
-        self._pending_handlers: dict[tuple[str, str], ServiceStateChange] = {}
+        self._pending_handlers: Dict[Tuple[str, str], ServiceStateChange] = {}
         self._service_state_changed = Signal()
         self.query_scheduler = QueryScheduler(
             zc,
@@ -618,7 +623,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
             listener = cast("ServiceListener", handlers)
             handlers = None
 
-        handlers = cast(list[Callable[..., None]], handlers or [])
+        handlers = cast(List[Callable[..., None]], handlers or [])
 
         if listener:
             handlers.append(_service_state_changed_from_listener(listener))
@@ -640,7 +645,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
     def service_state_changed(self) -> SignalRegistrationInterface:
         return self._service_state_changed.registration_interface
 
-    def _names_matching_types(self, names: Iterable[str]) -> list[tuple[str, str]]:
+    def _names_matching_types(self, names: Iterable[str]) -> List[Tuple[str, str]]:
         """Return the type and name for records matching the types we are browsing."""
         return [
             (type_, name) for name in names for type_ in self.types.intersection(cached_possible_types(name))
@@ -665,7 +670,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
         ):
             self._pending_handlers[key] = state_change
 
-    def async_update_records(self, zc: "Zeroconf", now: float_, records: list[RecordUpdate]) -> None:
+    def async_update_records(self, zc: "Zeroconf", now: float_, records: List[RecordUpdate]) -> None:
         """Callback invoked by Zeroconf when new information arrives.
 
         Updates information required by browser in the Zeroconf cache.
@@ -722,7 +727,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
             self._fire_service_state_changed_event(pending)
         self._pending_handlers.clear()
 
-    def _fire_service_state_changed_event(self, event: tuple[tuple[str, str], ServiceStateChange]) -> None:
+    def _fire_service_state_changed_event(self, event: Tuple[Tuple[str, str], ServiceStateChange]) -> None:
         """Fire a service state changed event.
 
         When running with ServiceBrowser, this will happen in the dedicated
@@ -766,7 +771,7 @@ class ServiceBrowser(_ServiceBrowserBase, threading.Thread):
         self,
         zc: "Zeroconf",
         type_: Union[str, list],
-        handlers: Optional[Union[ServiceListener, list[Callable[..., None]]]] = None,
+        handlers: Optional[Union[ServiceListener, List[Callable[..., None]]]] = None,
         listener: Optional[ServiceListener] = None,
         addr: Optional[str] = None,
         port: int = _MDNS_PORT,
@@ -821,7 +826,7 @@ class ServiceBrowser(_ServiceBrowserBase, threading.Thread):
 
     def __exit__(  # pylint: disable=useless-return
         self,
-        exc_type: Optional[type[BaseException]],
+        exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:

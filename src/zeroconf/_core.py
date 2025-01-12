@@ -24,9 +24,8 @@ import asyncio
 import logging
 import sys
 import threading
-from collections.abc import Awaitable
 from types import TracebackType
-from typing import Optional, Union
+from typing import Awaitable, Dict, List, Optional, Set, Tuple, Type, Union
 
 from ._cache import DNSCache
 from ._dns import DNSQuestion, DNSQuestionType
@@ -111,7 +110,7 @@ def async_send_with_transport(
     out: DNSOutgoing,
     addr: Optional[str],
     port: int,
-    v6_flow_scope: Union[tuple[()], tuple[int, int]] = (),
+    v6_flow_scope: Union[Tuple[()], Tuple[int, int]] = (),
 ) -> None:
     ipv6_socket = transport.is_ipv6
     if addr is None:
@@ -182,7 +181,7 @@ class Zeroconf(QuietLogger):
 
         self.engine = AsyncEngine(self, listen_socket, respond_sockets)
 
-        self.browsers: dict[ServiceListener, ServiceBrowser] = {}
+        self.browsers: Dict[ServiceListener, ServiceBrowser] = {}
         self.registry = ServiceRegistry()
         self.cache = DNSCache()
         self.question_history = QuestionHistory()
@@ -193,7 +192,7 @@ class Zeroconf(QuietLogger):
         self.query_handler = QueryHandler(self)
         self.record_manager = RecordManager(self)
 
-        self._notify_futures: set[asyncio.Future] = set()
+        self._notify_futures: Set[asyncio.Future] = set()
         self.loop: Optional[asyncio.AbstractEventLoop] = None
         self._loop_thread: Optional[threading.Thread] = None
 
@@ -240,7 +239,7 @@ class Zeroconf(QuietLogger):
             raise NotRunningException
 
     @property
-    def listeners(self) -> set[RecordUpdateListener]:
+    def listeners(self) -> Set[RecordUpdateListener]:
         return self.record_manager.listeners
 
     async def async_wait(self, timeout: float) -> None:
@@ -563,7 +562,7 @@ class Zeroconf(QuietLogger):
     def add_listener(
         self,
         listener: RecordUpdateListener,
-        question: Optional[Union[DNSQuestion, list[DNSQuestion]]],
+        question: Optional[Union[DNSQuestion, List[DNSQuestion]]],
     ) -> None:
         """Adds a listener for a given question.  The listener will have
         its update_record method called when information is available to
@@ -585,7 +584,7 @@ class Zeroconf(QuietLogger):
     def async_add_listener(
         self,
         listener: RecordUpdateListener,
-        question: Optional[Union[DNSQuestion, list[DNSQuestion]]],
+        question: Optional[Union[DNSQuestion, List[DNSQuestion]]],
     ) -> None:
         """Adds a listener for a given question.  The listener will have
         its update_record method called when information is available to
@@ -607,7 +606,7 @@ class Zeroconf(QuietLogger):
         out: DNSOutgoing,
         addr: Optional[str] = None,
         port: int = _MDNS_PORT,
-        v6_flow_scope: Union[tuple[()], tuple[int, int]] = (),
+        v6_flow_scope: Union[Tuple[()], Tuple[int, int]] = (),
         transport: Optional[_WrappedTransport] = None,
     ) -> None:
         """Sends an outgoing packet threadsafe."""
@@ -619,7 +618,7 @@ class Zeroconf(QuietLogger):
         out: DNSOutgoing,
         addr: Optional[str] = None,
         port: int = _MDNS_PORT,
-        v6_flow_scope: Union[tuple[()], tuple[int, int]] = (),
+        v6_flow_scope: Union[Tuple[()], Tuple[int, int]] = (),
         transport: Optional[_WrappedTransport] = None,
     ) -> None:
         """Sends an outgoing packet."""
@@ -707,7 +706,7 @@ class Zeroconf(QuietLogger):
 
     def __exit__(  # pylint: disable=useless-return
         self,
-        exc_type: Optional[type[BaseException]],
+        exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> Optional[bool]:

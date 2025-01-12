@@ -22,9 +22,8 @@ USA
 
 import enum
 import logging
-from collections.abc import Sequence
 from struct import Struct
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple, Union
 
 from .._dns import DNSPointer, DNSQuestion, DNSRecord
 from .._exceptions import NamePartTooLongException
@@ -99,20 +98,20 @@ class DNSOutgoing:
         self.finished = False
         self.id = id_
         self.multicast = multicast
-        self.packets_data: list[bytes] = []
+        self.packets_data: List[bytes] = []
 
         # these 3 are per-packet -- see also _reset_for_next_packet()
-        self.names: dict[str, int] = {}
-        self.data: list[bytes] = []
+        self.names: Dict[str, int] = {}
+        self.data: List[bytes] = []
         self.size: int = _DNS_PACKET_HEADER_LEN
         self.allow_long: bool = True
 
         self.state = STATE_INIT
 
-        self.questions: list[DNSQuestion] = []
-        self.answers: list[tuple[DNSRecord, float]] = []
-        self.authorities: list[DNSPointer] = []
-        self.additionals: list[DNSRecord] = []
+        self.questions: List[DNSQuestion] = []
+        self.answers: List[Tuple[DNSRecord, float]] = []
+        self.authorities: List[DNSPointer] = []
+        self.additionals: List[DNSRecord] = []
 
     def is_query(self) -> bool:
         """Returns true if this is a query."""
@@ -408,7 +407,7 @@ class DNSOutgoing:
             or additional_offset < len(self.additionals)
         )
 
-    def packets(self) -> list[bytes]:
+    def packets(self) -> List[bytes]:
         """Returns a list of bytestrings containing the packets' bytes
 
         No further parts should be added to the packet once this

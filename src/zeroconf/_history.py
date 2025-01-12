@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 USA
 """
 
+from typing import Dict, List, Set, Tuple
+
 from ._dns import DNSQuestion, DNSRecord
 from .const import _DUPLICATE_QUESTION_INTERVAL
 
@@ -34,13 +36,13 @@ class QuestionHistory:
 
     def __init__(self) -> None:
         """Init a new QuestionHistory."""
-        self._history: dict[DNSQuestion, tuple[float, set[DNSRecord]]] = {}
+        self._history: Dict[DNSQuestion, Tuple[float, Set[DNSRecord]]] = {}
 
-    def add_question_at_time(self, question: DNSQuestion, now: _float, known_answers: set[DNSRecord]) -> None:
+    def add_question_at_time(self, question: DNSQuestion, now: _float, known_answers: Set[DNSRecord]) -> None:
         """Remember a question with known answers."""
         self._history[question] = (now, known_answers)
 
-    def suppresses(self, question: DNSQuestion, now: _float, known_answers: set[DNSRecord]) -> bool:
+    def suppresses(self, question: DNSQuestion, now: _float, known_answers: Set[DNSRecord]) -> bool:
         """Check to see if a question should be suppressed.
 
         https://datatracker.ietf.org/doc/html/rfc6762#section-7.3
@@ -64,7 +66,7 @@ class QuestionHistory:
 
     def async_expire(self, now: _float) -> None:
         """Expire the history of old questions."""
-        removes: list[DNSQuestion] = []
+        removes: List[DNSQuestion] = []
         for question, now_known_answers in self._history.items():
             than, _ = now_known_answers
             if now - than > _DUPLICATE_QUESTION_INTERVAL:
