@@ -42,6 +42,7 @@ _DNSRecordCacheType = Dict[str, Dict[DNSRecord, DNSRecord]]
 _DNSRecord = DNSRecord
 _str = str
 _float = float
+_int = int
 
 # The minimum number of scheduled record expirations before we start cleaning up
 # the expiration heap. This is a performance optimization to avoid cleaning up the
@@ -188,7 +189,7 @@ class DNSCache:
             return None
         return store.get(entry)
 
-    def async_all_by_details(self, name: _str, type_: int, class_: int) -> List[DNSRecord]:
+    def async_all_by_details(self, name: _str, type_: _int, class_: _int) -> List[DNSRecord]:
         """Gets all matching entries by details.
 
         This function is not thread-safe and must be called from
@@ -234,7 +235,7 @@ class DNSCache:
                 return cached_entry
         return None
 
-    def get_by_details(self, name: str, type_: int, class_: int) -> Optional[DNSRecord]:
+    def get_by_details(self, name: str, type_: _int, class_: _int) -> Optional[DNSRecord]:
         """Gets the first matching entry by details. Returns None if no entries match.
 
         Calling this function is not recommended as it will only
@@ -255,7 +256,7 @@ class DNSCache:
                 return cached_entry
         return None
 
-    def get_all_by_details(self, name: str, type_: int, class_: int) -> List[DNSRecord]:
+    def get_all_by_details(self, name: str, type_: _int, class_: _int) -> List[DNSRecord]:
         """Gets all matching entries by details."""
         key = name.lower()
         records = self.cache.get(key)
@@ -292,7 +293,7 @@ class DNSCache:
 
     def async_mark_unique_records_older_than_1s_to_expire(
         self,
-        unique_types: Set[Tuple[_str, int, int]],
+        unique_types: Set[Tuple[_str, _int, _int]],
         answers: Iterable[DNSRecord],
         now: _float,
     ) -> None:
