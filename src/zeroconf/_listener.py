@@ -24,7 +24,7 @@ import asyncio
 import logging
 import random
 from functools import partial
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from ._logger import QuietLogger, log
 from ._protocol.incoming import DNSIncoming
@@ -78,12 +78,12 @@ class AsyncListener:
         self.last_message: Optional[DNSIncoming] = None
         self.transport: Optional[_WrappedTransport] = None
         self.sock_description: Optional[str] = None
-        self._deferred: Dict[str, List[DNSIncoming]] = {}
-        self._timers: Dict[str, asyncio.TimerHandle] = {}
+        self._deferred: dict[str, list[DNSIncoming]] = {}
+        self._timers: dict[str, asyncio.TimerHandle] = {}
         super().__init__()
 
     def datagram_received(
-        self, data: _bytes, addrs: Union[Tuple[str, int], Tuple[str, int, int, int]]
+        self, data: _bytes, addrs: Union[tuple[str, int], tuple[str, int, int, int]]
     ) -> None:
         data_len = len(data)
         debug = DEBUG_ENABLED()
@@ -108,7 +108,7 @@ class AsyncListener:
         data_len: _int,
         now: _float,
         data: _bytes,
-        addrs: Union[Tuple[str, int], Tuple[str, int, int, int]],
+        addrs: Union[tuple[str, int], tuple[str, int, int, int]],
     ) -> None:
         if (
             self.data == data
@@ -129,12 +129,12 @@ class AsyncListener:
             return
 
         if len(addrs) == 2:
-            v6_flow_scope: Union[Tuple[()], Tuple[int, int]] = ()
+            v6_flow_scope: Union[tuple[()], tuple[int, int]] = ()
             # https://github.com/python/mypy/issues/1178
             addr, port = addrs  # type: ignore
             addr_port = addrs
             if TYPE_CHECKING:
-                addr_port = cast(Tuple[str, int], addr_port)
+                addr_port = cast(tuple[str, int], addr_port)
             scope = None
         else:
             # https://github.com/python/mypy/issues/1178
@@ -189,7 +189,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Deal with incoming query packets.  Provides a response if
         possible."""
@@ -228,7 +228,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Respond to a query and reassemble any truncated deferred packets."""
         self._cancel_any_timers_for_addr(addr)

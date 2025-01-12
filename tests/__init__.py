@@ -24,7 +24,7 @@ import asyncio
 import socket
 import time
 from functools import lru_cache
-from typing import List, Optional, Set
+from typing import Optional
 from unittest import mock
 
 import ifaddr
@@ -36,11 +36,11 @@ _MONOTONIC_RESOLUTION = time.get_clock_info("monotonic").resolution
 
 
 class QuestionHistoryWithoutSuppression(QuestionHistory):
-    def suppresses(self, question: DNSQuestion, now: float, known_answers: Set[DNSRecord]) -> bool:
+    def suppresses(self, question: DNSQuestion, now: float, known_answers: set[DNSRecord]) -> bool:
         return False
 
 
-def _inject_responses(zc: Zeroconf, msgs: List[DNSIncoming]) -> None:
+def _inject_responses(zc: Zeroconf, msgs: list[DNSIncoming]) -> None:
     """Inject a DNSIncoming response."""
     assert zc.loop is not None
 

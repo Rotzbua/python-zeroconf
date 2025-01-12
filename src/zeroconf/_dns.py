@@ -22,7 +22,7 @@ USA
 
 import enum
 import socket
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from ._exceptions import AbstractMethodException
 from ._utils.net import _is_v6_address
@@ -539,7 +539,7 @@ class DNSNsec(DNSRecord):
         class_: int,
         ttl: Union[int, float],
         next_name: str,
-        rdtypes: List[int],
+        rdtypes: list[int],
         created: Optional[float] = None,
     ) -> None:
         self._fast_init(name, type_, class_, ttl, next_name, rdtypes, created or current_time_millis())
@@ -551,7 +551,7 @@ class DNSNsec(DNSRecord):
         class_: _int,
         ttl: _float,
         next_name: str,
-        rdtypes: List[_int],
+        rdtypes: list[_int],
         created: _float,
     ) -> None:
         self._fast_init_record(name, type_, class_, ttl, created)
@@ -610,21 +610,21 @@ class DNSRRSet:
 
     __slots__ = ("_lookup", "_records")
 
-    def __init__(self, records: List[DNSRecord]) -> None:
+    def __init__(self, records: list[DNSRecord]) -> None:
         """Create an RRset from records sets."""
         self._records = records
-        self._lookup: Optional[Dict[DNSRecord, DNSRecord]] = None
+        self._lookup: Optional[dict[DNSRecord, DNSRecord]] = None
 
     @property
-    def lookup(self) -> Dict[DNSRecord, DNSRecord]:
+    def lookup(self) -> dict[DNSRecord, DNSRecord]:
         """Return the lookup table."""
         return self._get_lookup()
 
-    def lookup_set(self) -> Set[DNSRecord]:
+    def lookup_set(self) -> set[DNSRecord]:
         """Return the lookup table as aset."""
         return set(self._get_lookup())
 
-    def _get_lookup(self) -> Dict[DNSRecord, DNSRecord]:
+    def _get_lookup(self) -> dict[DNSRecord, DNSRecord]:
         """Return the lookup table, building it if needed."""
         if self._lookup is None:
             # Build the hash table so we can lookup the record ttl

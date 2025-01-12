@@ -22,7 +22,7 @@ USA
 
 import asyncio
 import random
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Union, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Union, cast
 
 from .._cache import DNSCache
 from .._dns import (
@@ -166,13 +166,13 @@ class ServiceInfo(RecordUpdateListener):
         port: Optional[int] = None,
         weight: int = 0,
         priority: int = 0,
-        properties: Union[bytes, Dict] = b"",
+        properties: Union[bytes, dict] = b"",
         server: Optional[str] = None,
         host_ttl: int = _DNS_HOST_TTL,
         other_ttl: int = _DNS_OTHER_TTL,
         *,
-        addresses: Optional[List[bytes]] = None,
-        parsed_addresses: Optional[List[str]] = None,
+        addresses: Optional[list[bytes]] = None,
+        parsed_addresses: Optional[list[str]] = None,
         interface_index: Optional[int] = None,
     ) -> None:
         # Accept both none, or one, but not both.
@@ -185,8 +185,8 @@ class ServiceInfo(RecordUpdateListener):
         self.type = type_
         self._name = name
         self.key = name.lower()
-        self._ipv4_addresses: List[ZeroconfIPv4Address] = []
-        self._ipv6_addresses: List[ZeroconfIPv6Address] = []
+        self._ipv4_addresses: list[ZeroconfIPv4Address] = []
+        self._ipv6_addresses: list[ZeroconfIPv6Address] = []
         if addresses is not None:
             self.addresses = addresses
         elif parsed_addresses is not None:
@@ -196,20 +196,20 @@ class ServiceInfo(RecordUpdateListener):
         self.priority = priority
         self.server = server if server else None
         self.server_key = server.lower() if server else None
-        self._properties: Optional[Dict[bytes, Optional[bytes]]] = None
-        self._decoded_properties: Optional[Dict[str, Optional[str]]] = None
+        self._properties: Optional[dict[bytes, Optional[bytes]]] = None
+        self._decoded_properties: Optional[dict[str, Optional[str]]] = None
         if isinstance(properties, bytes):
             self._set_text(properties)
         else:
             self._set_properties(properties)
         self.host_ttl = host_ttl
         self.other_ttl = other_ttl
-        self._new_records_futures: Optional[Set[asyncio.Future]] = None
-        self._dns_address_cache: Optional[List[DNSAddress]] = None
+        self._new_records_futures: Optional[set[asyncio.Future]] = None
+        self._dns_address_cache: Optional[list[DNSAddress]] = None
         self._dns_pointer_cache: Optional[DNSPointer] = None
         self._dns_service_cache: Optional[DNSService] = None
         self._dns_text_cache: Optional[DNSText] = None
-        self._get_address_and_nsec_records_cache: Optional[Set[DNSRecord]] = None
+        self._get_address_and_nsec_records_cache: Optional[set[DNSRecord]] = None
 
     @property
     def name(self) -> str:
@@ -226,7 +226,7 @@ class ServiceInfo(RecordUpdateListener):
         self._dns_text_cache = None
 
     @property
-    def addresses(self) -> List[bytes]:
+    def addresses(self) -> list[bytes]:
         """IPv4 addresses of this service.
 
         Only IPv4 addresses are returned for backward compatibility.
@@ -236,7 +236,7 @@ class ServiceInfo(RecordUpdateListener):
         return self.addresses_by_version(IPVersion.V4Only)
 
     @addresses.setter
-    def addresses(self, value: List[bytes]) -> None:
+    def addresses(self, value: list[bytes]) -> None:
         """Replace the addresses list.
 
         This replaces all currently stored addresses, both IPv4 and IPv6.
@@ -266,7 +266,7 @@ class ServiceInfo(RecordUpdateListener):
                 self._ipv6_addresses.append(addr)
 
     @property
-    def properties(self) -> Dict[bytes, Optional[bytes]]:
+    def properties(self) -> dict[bytes, Optional[bytes]]:
         """Return properties as bytes."""
         if self._properties is None:
             self._unpack_text_into_properties()
@@ -275,7 +275,7 @@ class ServiceInfo(RecordUpdateListener):
         return self._properties
 
     @property
-    def decoded_properties(self) -> Dict[str, Optional[str]]:
+    def decoded_properties(self) -> dict[str, Optional[str]]:
         """Return properties as strings."""
         if self._decoded_properties is None:
             self._generate_decoded_properties()
@@ -299,7 +299,7 @@ class ServiceInfo(RecordUpdateListener):
             loop or asyncio.get_running_loop(), self._new_records_futures, timeout
         )
 
-    def addresses_by_version(self, version: IPVersion) -> List[bytes]:
+    def addresses_by_version(self, version: IPVersion) -> list[bytes]:
         """List addresses matching IP version.
 
         Addresses are guaranteed to be returned in LIFO (last in, first out)
@@ -319,7 +319,7 @@ class ServiceInfo(RecordUpdateListener):
 
     def ip_addresses_by_version(
         self, version: IPVersion
-    ) -> Union[List[ZeroconfIPv4Address], List[ZeroconfIPv6Address]]:
+    ) -> Union[list[ZeroconfIPv4Address], list[ZeroconfIPv6Address]]:
         """List ip_address objects matching IP version.
 
         Addresses are guaranteed to be returned in LIFO (last in, first out)
@@ -332,7 +332,7 @@ class ServiceInfo(RecordUpdateListener):
 
     def _ip_addresses_by_version_value(
         self, version_value: int_
-    ) -> Union[List[ZeroconfIPv4Address], List[ZeroconfIPv6Address]]:
+    ) -> Union[list[ZeroconfIPv4Address], list[ZeroconfIPv6Address]]:
         """Backend for addresses_by_version that uses the raw value."""
         if version_value == _IPVersion_All_value:
             return [*self._ipv4_addresses, *self._ipv6_addresses]  # type: ignore[return-value]
@@ -340,7 +340,7 @@ class ServiceInfo(RecordUpdateListener):
             return self._ipv4_addresses
         return self._ipv6_addresses
 
-    def parsed_addresses(self, version: IPVersion = IPVersion.All) -> List[str]:
+    def parsed_addresses(self, version: IPVersion = IPVersion.All) -> list[str]:
         """List addresses in their parsed string form.
 
         Addresses are guaranteed to be returned in LIFO (last in, first out)
@@ -351,7 +351,7 @@ class ServiceInfo(RecordUpdateListener):
         """
         return [str_without_scope_id(addr) for addr in self._ip_addresses_by_version_value(version.value)]
 
-    def parsed_scoped_addresses(self, version: IPVersion = IPVersion.All) -> List[str]:
+    def parsed_scoped_addresses(self, version: IPVersion = IPVersion.All) -> list[str]:
         """Equivalent to parsed_addresses, with the exception that IPv6 Link-Local
         addresses are qualified with %<interface_index> when available
 
@@ -363,9 +363,9 @@ class ServiceInfo(RecordUpdateListener):
         """
         return [str(addr) for addr in self._ip_addresses_by_version_value(version.value)]
 
-    def _set_properties(self, properties: Dict[Union[str, bytes], Optional[Union[str, bytes]]]) -> None:
+    def _set_properties(self, properties: dict[Union[str, bytes], Optional[Union[str, bytes]]]) -> None:
         """Sets properties and text of this info from a dictionary"""
-        list_: List[bytes] = []
+        list_: list[bytes] = []
         properties_contain_str = False
         result = b""
         for key, value in properties.items():
@@ -419,7 +419,7 @@ class ServiceInfo(RecordUpdateListener):
             return
 
         index = 0
-        properties: Dict[bytes, Optional[bytes]] = {}
+        properties: dict[bytes, Optional[bytes]] = {}
         while index < end:
             length = text[index]
             index += 1
@@ -438,9 +438,9 @@ class ServiceInfo(RecordUpdateListener):
 
     def _get_ip_addresses_from_cache_lifo(
         self, zc: "Zeroconf", now: float_, type: int_
-    ) -> List[Union[ZeroconfIPv4Address, ZeroconfIPv6Address]]:
+    ) -> list[Union[ZeroconfIPv4Address, ZeroconfIPv6Address]]:
         """Set IPv6 addresses from the cache."""
-        address_list: List[Union[ZeroconfIPv4Address, ZeroconfIPv6Address]] = []
+        address_list: list[Union[ZeroconfIPv4Address, ZeroconfIPv6Address]] = []
         for record in self._get_address_records_from_cache_by_type(zc, type):
             if record.is_expired(now):
                 continue
@@ -470,7 +470,7 @@ class ServiceInfo(RecordUpdateListener):
         else:
             self._ipv4_addresses = self._get_ip_addresses_from_cache_lifo(zc, now, _TYPE_A)
 
-    def async_update_records(self, zc: "Zeroconf", now: float_, records: List[RecordUpdate]) -> None:
+    def async_update_records(self, zc: "Zeroconf", now: float_, records: list[RecordUpdate]) -> None:
         """Updates service information from a DNS record.
 
         This method will be run in the event loop.
@@ -571,7 +571,7 @@ class ServiceInfo(RecordUpdateListener):
         self,
         override_ttl: Optional[int] = None,
         version: IPVersion = IPVersion.All,
-    ) -> List[DNSAddress]:
+    ) -> list[DNSAddress]:
         """Return matching DNSAddress from ServiceInfo."""
         return self._dns_addresses(override_ttl, version)
 
@@ -579,7 +579,7 @@ class ServiceInfo(RecordUpdateListener):
         self,
         override_ttl: Optional[int],
         version: IPVersion,
-    ) -> List[DNSAddress]:
+    ) -> list[DNSAddress]:
         """Return matching DNSAddress from ServiceInfo."""
         cacheable = version is IPVersion.All and override_ttl is None
         if self._dns_address_cache is not None and cacheable:
@@ -672,11 +672,11 @@ class ServiceInfo(RecordUpdateListener):
             self._dns_text_cache = record
         return record
 
-    def dns_nsec(self, missing_types: List[int], override_ttl: Optional[int] = None) -> DNSNsec:
+    def dns_nsec(self, missing_types: list[int], override_ttl: Optional[int] = None) -> DNSNsec:
         """Return DNSNsec from ServiceInfo."""
         return self._dns_nsec(missing_types, override_ttl)
 
-    def _dns_nsec(self, missing_types: List[int], override_ttl: Optional[int]) -> DNSNsec:
+    def _dns_nsec(self, missing_types: list[int], override_ttl: Optional[int]) -> DNSNsec:
         """Return DNSNsec from ServiceInfo."""
         return DNSNsec(
             self._name,
@@ -688,17 +688,17 @@ class ServiceInfo(RecordUpdateListener):
             0.0,
         )
 
-    def get_address_and_nsec_records(self, override_ttl: Optional[int] = None) -> Set[DNSRecord]:
+    def get_address_and_nsec_records(self, override_ttl: Optional[int] = None) -> set[DNSRecord]:
         """Build a set of address records and NSEC records for non-present record types."""
         return self._get_address_and_nsec_records(override_ttl)
 
-    def _get_address_and_nsec_records(self, override_ttl: Optional[int]) -> Set[DNSRecord]:
+    def _get_address_and_nsec_records(self, override_ttl: Optional[int]) -> set[DNSRecord]:
         """Build a set of address records and NSEC records for non-present record types."""
         cacheable = override_ttl is None
         if self._get_address_and_nsec_records_cache is not None and cacheable:
             return self._get_address_and_nsec_records_cache
-        missing_types: Set[int] = _ADDRESS_RECORD_TYPES.copy()
-        records: Set[DNSRecord] = set()
+        missing_types: set[int] = _ADDRESS_RECORD_TYPES.copy()
+        records: set[DNSRecord] = set()
         for dns_address in self._dns_addresses(override_ttl, IPVersion.All):
             missing_types.discard(dns_address.type)
             records.add(dns_address)
@@ -709,7 +709,7 @@ class ServiceInfo(RecordUpdateListener):
             self._get_address_and_nsec_records_cache = records
         return records
 
-    def _get_address_records_from_cache_by_type(self, zc: "Zeroconf", _type: int_) -> List[DNSAddress]:
+    def _get_address_records_from_cache_by_type(self, zc: "Zeroconf", _type: int_) -> list[DNSAddress]:
         """Get the addresses from the cache."""
         if self.server_key is None:
             return []

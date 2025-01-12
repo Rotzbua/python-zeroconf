@@ -24,7 +24,7 @@ import asyncio
 import itertools
 import socket
 import threading
-from typing import TYPE_CHECKING, List, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from ._record_update import RecordUpdate
 from ._utils.asyncio import get_running_loop, run_coro_with_timeout
@@ -60,13 +60,13 @@ class AsyncEngine:
         self,
         zeroconf: "Zeroconf",
         listen_socket: Optional[socket.socket],
-        respond_sockets: List[socket.socket],
+        respond_sockets: list[socket.socket],
     ) -> None:
         self.loop: Optional[asyncio.AbstractEventLoop] = None
         self.zc = zeroconf
-        self.protocols: List[AsyncListener] = []
-        self.readers: List[_WrappedTransport] = []
-        self.senders: List[_WrappedTransport] = []
+        self.protocols: list[AsyncListener] = []
+        self.readers: list[_WrappedTransport] = []
+        self.senders: list[_WrappedTransport] = []
         self.running_event: Optional[asyncio.Event] = None
         self._listen_socket = listen_socket
         self._respond_sockets = respond_sockets
