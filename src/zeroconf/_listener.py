@@ -189,7 +189,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Deal with incoming query packets.  Provides a response if
         possible."""
@@ -228,7 +228,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Respond to a query and reassemble any truncated deferred packets."""
         self._cancel_any_timers_for_addr(addr)
