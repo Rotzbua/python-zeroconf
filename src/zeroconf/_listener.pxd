@@ -31,7 +31,7 @@ cdef class AsyncListener:
     cdef public cython.dict _timers
 
     @cython.locals(now=double, debug=cython.bint)
-    cpdef datagram_received(self, cython.bytes bytes, cython.tuple addrs)
+    cpdef datagram_received(self, cython.bytes data, cython.tuple addrs)
 
     @cython.locals(msg=DNSIncoming)
     cpdef _process_datagram_at_time(self, bint debug, cython.uint data_len, double now, bytes data, cython.tuple addrs)

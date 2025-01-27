@@ -38,7 +38,6 @@ if TYPE_CHECKING:
 _TC_DELAY_RANDOM_INTERVAL = (400, 500)
 
 
-_bytes = bytes
 _str = str
 _int = int
 _float = float
@@ -83,7 +82,7 @@ class AsyncListener:
         super().__init__()
 
     def datagram_received(
-        self, data: _bytes, addrs: Union[Tuple[str, int], Tuple[str, int, int, int]]
+        self, data: bytes, addrs: Union[Tuple[str, int], Tuple[str, int, int, int]]
     ) -> None:
         data_len = len(data)
         debug = DEBUG_ENABLED()
@@ -107,7 +106,7 @@ class AsyncListener:
         debug: bool,
         data_len: _int,
         now: _float,
-        data: _bytes,
+        data: bytes,
         addrs: Union[Tuple[str, int], Tuple[str, int, int, int]],
     ) -> None:
         if (
@@ -189,7 +188,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Deal with incoming query packets.  Provides a response if
         possible."""
@@ -228,7 +227,7 @@ class AsyncListener:
         addr: _str,
         port: _int,
         transport: _WrappedTransport,
-        v6_flow_scope: Union[Tuple[()], Tuple[int, int]],
+        v6_flow_scope: Union[tuple[()], tuple[int, int]],
     ) -> None:
         """Respond to a query and reassemble any truncated deferred packets."""
         self._cancel_any_timers_for_addr(addr)
