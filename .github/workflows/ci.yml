@@ -74,7 +74,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   benchmark:
-    if:  ${{ secrets.CODSPEED_TOKEN != '' }}
+    if: github.repository == 'python-zeroconf/python-zeroconf'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
