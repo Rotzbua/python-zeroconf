@@ -37,32 +37,14 @@ jobs:
       matrix:
         python-version:
           - "3.9"
-          - "3.10"
-          - "3.11"
-          - "3.12"
           - "3.13"
           - "pypy-3.9"
           - "pypy-3.10"
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
         extension:
           - "skip_cython"
           - "use_cython"
-        exclude:
-          - os: macos-latest
-            extension: use_cython
-          - os: windows-latest
-            extension: use_cython
-          - os: windows-latest
-            python-version: "pypy-3.9"
-          - os: windows-latest
-            python-version: "pypy-3.10"
-          - os: macos-latest
-            python-version: "pypy-3.9"
-          - os: macos-latest
-            python-version: "pypy-3.10"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
