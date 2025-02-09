@@ -615,7 +615,7 @@ class _ServiceBrowserBase(RecordUpdateListener):
         self._query_sender_task: asyncio.Task | None = None
 
         if hasattr(handlers, "add_service"):
-            listener = cast("ServiceListener", handlers)
+            listener = cast(ServiceListener, handlers)
             handlers = None
 
         handlers = cast(list[Callable[..., None]], handlers or [])
